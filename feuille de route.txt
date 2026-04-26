@@ -1,0 +1,54 @@
+1. Architecture des Utilisateurs (Rôles & Accès)
+L'accès au système est segmenté en quatre profils distincts, chacun disposant d'une interface spécifique après une inscription automatisée selon le choix du rôle.
+
+Administrateur (Vous) : Contrôle total du système. Construction du parcours pédagogique et validation des liens entre professeurs et élèves. Outil de communication centralisé avec tous les intervenants.
+
+Professeur : Création de leçons et d'activités. Gestion de ses propres groupes d'élèves. Accès à un assistant IA pédagogique pour la conception d'exercices. Visibilité restreinte de ses travaux à ses propres élèves.
+
+Élève : Réalisation des travaux assignés. Consultation des notes, du temps passé et des rapports. Accès en lecture seule (désactivé) aux travaux terminés. Agent IA tuteur (guide sans donner la solution).
+
+Parent : Suivi des résultats et consultation des copies de l'enfant. Communication avec le professeur et l'administration. Assistant spécialisé en soutien psycho-pédagogique.
+
+2. Structure du Parcours Pédagogique
+Le contenu est organisé de manière hiérarchique et se débloque progressivement selon l'avancement de l'élève :
+
+Matière d'enseignement
+
+Niveau de scolarité
+
+Classe
+
+Période de l'année
+
+Chapitre
+
+Paragraphe associé
+
+3. Les Ateliers de Construction (Workshops)
+Le développement sera divisé en modules de fabrication pour assurer une cohérence technique :
+
+Atelier 1 (Thème & UI) : Fixation de la charte graphique stricte. Définition des couleurs (Or #d4af37 et Sombre #110f19), du style des cartes, des boutons de navigation standards, des dimensions et des ombrages.
+
+Atelier 2 (Contenu) : Constructeur de leçons et de supports pédagogiques.
+
+Ateliers suivants : Modules d'exercices, systèmes d'évaluation et générateurs de rapports.
+
+4. Intelligence Artificielle Intégrée
+Trois agents IA spécialisés seront déployés :
+
+IA Élève : Accompagnement et conseil pédagogique sans jamais résoudre l'exercice à la place de l'enfant.
+
+IA Professeur : Aide à la création de devoirs et d'activités basées sur les objectifs de chaque leçon.
+
+IA Parent : Support psychopédagogique pour aider à l'encadrement de l'enfant à la maison.
+
+5. Identité Visuelle et Interface
+L'application utilisera la palette officielle pour maintenir un aspect professionnel et reposant :
+
+Dominante Sombre : #110f19 (Sidebar, en-têtes, navigation).
+
+Accent Or : #d4af37 (Boutons d'action, focus, liserés de séparation).
+
+Fond de page : #f8f9fa (Gris doux pour la zone de travail).
+
+Ce plan de route constitue la fondation de BotMath OS. Chaque fichier créé (en Next.js, avec Prisma pour la base de données MySQL) suivra scrupuleusement ces directives pour assurer la conformité entre les versions PC et mobiles.

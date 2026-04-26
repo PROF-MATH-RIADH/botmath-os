@@ -1,0 +1,114 @@
+/* app/globals.css */
+
+:root {
+  --dominante-sombre: #110f19; /* Le noir bleuté profond */
+  --accent-or: #d4af37;        /* L'or officiel */
+  --fond-page: #f0f2f5;        /* Un gris clair pour le fond de droite */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--fond-page);
+}
+
+/* LA STRUCTURE DU SYSTÈME */
+.os-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* LE MENU GAUCHE (SIDEBAR) */
+.sidebar {
+  width: 260px;
+  background-color: #110f19 !important; /* On force le noir ici */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  position: fixed;
+  height: 100vh;
+  border-right: 3px solid var(--accent-or);
+  z-index: 100;
+}
+
+/* LA ZONE DE DROITE */
+.content-area {
+  margin-left: 260px;
+  flex-grow: 1;
+  padding: 40px;
+  min-height: 100vh;
+}
+
+/* LE LOGO */
+.logo-section {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+/* LES LIENS DU MENU */
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-item {
+  color: #bdc3c7;
+  text-decoration: none;
+  padding: 15px;
+  border-radius: 8px;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: rgba(212, 175, 55, 0.15);
+  color: var(--accent-or);
+}
+
+/* TABLE ET BOUTONS */
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.table-custom th {
+  background: var(--dominante-sombre);
+  color: white;
+  padding: 15px;
+  text-align: left;
+}
+
+.table-custom td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.btn-new {
+  background: white;
+  border: 2px solid var(--accent-or);
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn-new:hover {
+  background: var(--accent-or);
+  color: white;
+}

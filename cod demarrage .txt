@@ -1,0 +1,2 @@
+cd botmath-os 
+npm run dev
