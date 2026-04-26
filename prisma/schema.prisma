@@ -1,0 +1,89 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PROFESSEUR
+  ELEVE
+  PARENT
+}
+
+model Utilisateur {
+  id            Int               @id @default(autoincrement())
+  nom           String
+  prenom        String
+  email         String            @unique
+  mot_de_passe  String
+  role          Role              @default(ELEVE)
+  createdAt     DateTime          @default(now())
+  scores        EvaluationScore[]
+}
+
+model Matiere {
+  id          Int      @id @default(autoincrement())
+  nom         String   @unique
+  niveaux     Niveau[]
+  createdAt   DateTime @default(now())
+}
+
+model Niveau {
+  id          Int       @id @default(autoincrement())
+  nom         String
+  matiereId   Int
+  matiere     Matiere   @relation(fields: [matiereId], references: [id])
+  classes     Classe[]
+  createdAt   DateTime  @default(now())
+}
+
+model Classe {
+  id          Int       @id @default(autoincrement())
+  nom         String
+  niveauId    Int
+  niveau      Niveau    @relation(fields: [niveauId], references: [id])
+  periodes    Periode[]
+  createdAt   DateTime  @default(now())
+}
+
+model Periode {
+  id          Int        @id @default(autoincrement())
+  nom         String
+  classeId    Int
+  classe      Classe     @relation(fields: [classeId], references: [id])
+  chapitres   Chapitre[]
+  createdAt   DateTime   @default(now())
+}
+
+model Chapitre {
+  id          Int          @id @default(autoincrement())
+  titre       String
+  description String?
+  periodeId   Int
+  periode     Periode      @relation(fields: [periodeId], references: [id])
+  paragraphes Paragraphe[]
+  createdAt   DateTime     @default(now())
+}
+
+model Paragraphe {
+  id          Int      @id @default(autoincrement())
+  titre       String
+  contenu     String   @db.Text
+  chapitreId  Int
+  chapitre    Chapitre @relation(fields: [chapitreId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model EvaluationScore {
+  id             Int         @id @default(autoincrement())
+  eleveId        Int
+  eleve          Utilisateur @relation(fields: [eleveId], references: [id])
+  note           Float
+  dateEvaluation DateTime    @default(now())
+}

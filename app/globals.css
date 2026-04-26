@@ -3,7 +3,7 @@
 :root {
   --dominante-sombre: #110f19; /* Le noir bleuté profond */
   --accent-or: #d4af37;        /* L'or officiel */
-  --fond-page: #f0f2f5;        /* Un gris clair pour le fond de droite */
+  --fond-page: #f8f9fa;        /* Gris doux pour la zone de travail */
 }
 
 * {
@@ -98,6 +98,127 @@ body {
   padding: 15px;
   border-bottom: 1px solid #eee;
 }
+
+/* CARTES ET UI (Atelier 1) */
+.card-os {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-bottom: 4px solid var(--accent-or);
+  transition: transform 0.2s ease;
+}
+
+.card-os:hover {
+  transform: translateY(-5px);
+}
+
+.btn-os {
+  background-color: var(--accent-or);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-os:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-os-outline {
+  background-color: transparent;
+  border: 2px solid var(--accent-or);
+  color: var(--dominante-sombre);
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-os-outline:hover {
+  background-color: var(--accent-or);
+  color: white;
+}
+
+/* OMBRES PORTÉES (Atelier 1) */
+:root {
+  --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-intense: 0 15px 35px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08);
+  --shadow-gold-soft: 0 4px 15px rgba(212, 175, 55, 0.2);
+  --shadow-gold-intense: 0 10px 25px rgba(212, 175, 55, 0.4);
+}
+
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-intense { box-shadow: var(--shadow-intense); }
+
+/* COMPOSANTS DYNAMIQUES (Atelier 1) */
+.os-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(17, 15, 25, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.os-modal-container {
+  background: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.os-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.os-nav-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 50;
+}
+
+.os-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-style: solid;
+}
+
+.os-nav-btn:hover {
+  transform: translateY(-2px);
+}
+
+.os-nav-btn:active {
+  transform: translateY(0);
+}
+
+/* FIN COMPOSANTS DYNAMIQUES */
 
 .btn-new {
   background: white;
