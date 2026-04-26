@@ -45,9 +45,16 @@ export const DynamicNav = ({ settings, onNavigate }) => {
     backgroundColor: isHovered ? (settings.btnHoverBg || '#d4af37') : (settings.btnBg || 'transparent'),
     color: isHovered ? (settings.btnHoverColor || '#110f19') : (settings.btnColor || '#ffffff'),
     borderRadius: settings.btnRadius || '4px',
-    border: `${settings.btnBorderSize || '1px'} solid ${settings.btnBorderColor || '#d4af37'}`,
+    border: `${settings.btnBorderSize || '1px'} solid ${isHovered ? (settings.btnHoverBorder || settings.btnBorderColor) : (settings.btnBorderColor || '#d4af37')}`,
     fontSize: settings.btnFontSize || '14px',
-    fontWeight: '600'
+    fontWeight: '600',
+    boxShadow: isHovered ? (settings.btnHoverShadow || 'none') : (settings.btnShadow || 'none'),
+    textShadow: settings.textShadow || 'none',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    cursor: 'pointer'
   });
 
   const renderIcon = (type) => {

@@ -29,6 +29,7 @@ export default function RootLayout({ children }) {
                 
                 {/* Liens basés sur le rôle (Exemple structurel) */}
                 <Link href="/professeur" className="nav-item">📚 Mes Leçons</Link>
+                <Link href="/professeur/activite/creer" className="nav-item">✍️ Créer Activité</Link>
                 <div className="nav-item">🏆 Classement</div>
                 <Link href="/admin/theme" className="nav-item">🎨 Thème OS</Link>
                 <div className="nav-item">🤖 Assistant IA</div>

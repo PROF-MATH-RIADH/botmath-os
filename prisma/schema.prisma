@@ -77,7 +77,68 @@ model Paragraphe {
   contenu     String   @db.Text
   chapitreId  Int
   chapitre    Chapitre @relation(fields: [chapitreId], references: [id])
+  activites   Activite[]
   createdAt   DateTime @default(now())
+}
+
+model Activite {
+  id           Int        @id @default(autoincrement())
+  titre        String
+  paragrapheId Int
+  paragraphe   Paragraphe @relation(fields: [paragrapheId], references: [id])
+  professeurId Int
+  themeId      Int?       // Référence au thème sauvegardé
+  theme        Theme?     @relation(fields: [themeId], references: [id])
+  diapos       Diapo[]
+  createdAt    DateTime   @default(now())
+}
+
+model Theme {
+  id               Int        @id @default(autoincrement())
+  nom              String
+  // État Normal
+  btnBg            String
+  btnColor         String
+  btnBorderColor   String
+  btnBorderSize    String
+  btnRadius        String
+  btnShadow        String     // Ombre sur bouton
+  textShadow       String?    // Ombre sur texte
+  // État Survol
+  btnHoverBg       String
+  btnHoverColor    String
+  btnHoverBorder   String
+  btnHoverShadow   String
+  // Dimensions & Autres
+  width            String?
+  height           String?
+  fontSize         String?
+  iconSize         String?
+  isSolid          Boolean    @default(true)
+  activites        Activite[]
+  createdAt        DateTime   @default(now())
+}
+
+model Diapo {
+  id         Int       @id @default(autoincrement())
+  ordre      Int
+  activiteId Int
+  activite   Activite  @relation(fields: [activiteId], references: [id])
+  elements   Element[]
+  bgColor    String?
+  bgImage    String?
+  createdAt  DateTime  @default(now())
+}
+
+model Element {
+  id        Int      @id @default(autoincrement())
+  type      String   // TEXT, IMAGE, VIDEO, SOUND, LATEX
+  contenu   String   @db.Text
+  style     Json?    // Propriétés CSS (taille, couleur, position)
+  diapoId   Int
+  diapo     Diapo    @relation(fields: [diapoId], references: [id])
+  ordre     Int
+  createdAt DateTime @default(now())
 }
 
 model EvaluationScore {

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { DynamicModal, DynamicNav } from '@/components/ThemeBuilder';
 
+import IconLibrary from '@/components/IconLibrary';
+
 export default function ThemeAdmin() {
   const [modalSettings, setModalSettings] = useState({
     width: '500px',
@@ -16,25 +18,45 @@ export default function ThemeAdmin() {
   });
 
   const [navSettings, setNavSettings] = useState({
+    nom: 'Mon Thème Personnalisé',
     width: '100%',
     height: '80px',
     bgColor: '#110f19',
     shadowType: 'soft',
     borderSize: '3px',
     borderColor: '#d4af37',
-    btnMode: 'both', // 'text-only', 'icon-only', 'both'
-    btnBg: 'transparent',
-    btnHoverBg: '#d4af37',
+    btnMode: 'both',
+    btnBg: '#110f19',
     btnColor: '#ffffff',
-    btnHoverColor: '#110f19',
-    btnRadius: '8px',
-    btnBorderSize: '1px',
     btnBorderColor: '#d4af37',
+    btnBorderSize: '1px',
+    btnRadius: '8px',
+    btnShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+    btnHoverBg: '#d4af37',
+    btnHoverColor: '#110f19',
+    btnHoverBorder: '#d4af37',
+    btnHoverShadow: '0 4px 8px rgba(212,175,55,0.4)',
     btnFontSize: '14px',
     btnIconSize: '20'
   });
 
   const [showPreview, setShowPreview] = useState(false);
+  const [showIconLib, setShowIconLib] = useState(false);
+
+  const saveTheme = async () => {
+    try {
+      const response = await fetch('/api/themes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(navSettings)
+      });
+      const data = await response.json();
+      if (data.id) alert(`Thème enregistré avec l'ID: ${data.id}`);
+    } catch (error) {
+      alert('Erreur lors de la sauvegarde');
+    }
+  };
 
   return (
     <div style={{ padding: '30px' }}>
@@ -61,19 +83,34 @@ export default function ThemeAdmin() {
 
         {/* CONFIGURATION NAVIGATION */}
         <div className="card-os">
-          <h2 style={{ color: 'var(--accent-or)', marginBottom: '20px' }}>2. Configuration Navigation</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <label>Fond Navigation: <input type="color" value={navSettings.bgColor} onChange={e => setNavSettings({...navSettings, bgColor: e.target.value})} /></label>
-            <label>Mode Bouton: 
-              <select value={navSettings.btnMode} onChange={e => setNavSettings({...navSettings, btnMode: e.target.value})}>
-                <option value="text-only">Texte seul</option>
-                <option value="icon-only">Icône seule</option>
-                <option value="both">Les deux</option>
-              </select>
-            </label>
-            <label>Taille Icône: <input type="number" value={navSettings.btnIconSize} onChange={e => setNavSettings({...navSettings, btnIconSize: e.target.value})} /></label>
-            <label>Bouton Fond: <input type="color" value={navSettings.btnBg} onChange={e => setNavSettings({...navSettings, btnBg: e.target.value})} /></label>
-            <label>Bouton Survol: <input type="color" value={navSettings.btnHoverBg} onChange={e => setNavSettings({...navSettings, btnHoverBg: e.target.value})} /></label>
+          <h2 style={{ color: 'var(--accent-or)', marginBottom: '20px' }}>2. Configuration Boutons & Navigation</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '500px', overflowY: 'auto', paddingRight: '10px' }}>
+            <label>Nom du Thème: <input type="text" value={navSettings.nom} onChange={e => setNavSettings({...navSettings, nom: e.target.value})} /></label>
+            
+            <h4 style={{ borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>État Normal</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <label>Fond: <input type="color" value={navSettings.btnBg} onChange={e => setNavSettings({...navSettings, btnBg: e.target.value})} /></label>
+              <label>Texte: <input type="color" value={navSettings.btnColor} onChange={e => setNavSettings({...navSettings, btnColor: e.target.value})} /></label>
+              <label>Bordure: <input type="color" value={navSettings.btnBorderColor} onChange={e => setNavSettings({...navSettings, btnBorderColor: e.target.value})} /></label>
+              <label>Arrondi: <input type="text" value={navSettings.btnRadius} onChange={e => setNavSettings({...navSettings, btnRadius: e.target.value})} /></label>
+            </div>
+            <label>Ombre Bouton: <input type="text" value={navSettings.btnShadow} onChange={e => setNavSettings({...navSettings, btnShadow: e.target.value})} /></label>
+            <label>Ombre Texte: <input type="text" value={navSettings.textShadow} onChange={e => setNavSettings({...navSettings, textShadow: e.target.value})} /></label>
+
+            <h4 style={{ borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>État Survol (Hover)</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <label>Fond: <input type="color" value={navSettings.btnHoverBg} onChange={e => setNavSettings({...navSettings, btnHoverBg: e.target.value})} /></label>
+              <label>Texte: <input type="color" value={navSettings.btnHoverColor} onChange={e => setNavSettings({...navSettings, btnHoverColor: e.target.value})} /></label>
+            </div>
+            <label>Ombre Survol: <input type="text" value={navSettings.btnHoverShadow} onChange={e => setNavSettings({...navSettings, btnHoverShadow: e.target.value})} /></label>
+
+            <h4 style={{ borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>Icônes</h4>
+            <button className="btn-os-outline" onClick={() => setShowIconLib(!showIconLib)}>
+              {showIconLib ? "Fermer la bibliothèque" : "Ouvrir la bibliothèque d'icônes"}
+            </button>
+            {showIconLib && <IconLibrary onSelect={(name) => alert('Icône sélectionnée: ' + name)} />}
+
+            <button className="btn-os" onClick={saveTheme} style={{ marginTop: '20px' }}>💾 Enregistrer le Thème (ID)</button>
           </div>
         </div>
       </div>
