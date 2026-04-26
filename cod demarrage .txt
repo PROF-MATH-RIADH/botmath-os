@@ -2,3 +2,5 @@ cd botmath-os
 npm run dev
 
 https://botmath-os.vercel.app/
+
+mUZifIzWyG4TKPes
