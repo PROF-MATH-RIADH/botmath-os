@@ -30,6 +30,7 @@ model Utilisateur {
 model Matiere {
   id          Int      @id @default(autoincrement())
   nom         String   @unique
+  langue_mode String   @default("BILINGUE") // BILINGUE, FR, AR
   niveaux     Niveau[]
   createdAt   DateTime @default(now())
 }
@@ -77,68 +78,85 @@ model Paragraphe {
   contenu     String   @db.Text
   chapitreId  Int
   chapitre    Chapitre @relation(fields: [chapitreId], references: [id])
-  activites   Activite[]
+  cours       Cours[]
   createdAt   DateTime @default(now())
 }
 
-model Activite {
-  id           Int        @id @default(autoincrement())
-  titre        String
-  paragrapheId Int
-  paragraphe   Paragraphe @relation(fields: [paragrapheId], references: [id])
-  professeurId Int
-  themeId      Int?       // Référence au thème sauvegardé
-  theme        Theme?     @relation(fields: [themeId], references: [id])
-  diapos       Diapo[]
-  createdAt    DateTime   @default(now())
+model Cours {
+  id                Int          @id @default(autoincrement())
+  titre_fr          String?
+  titre_ar          String?
+  langue_mode       String       @default("BILINGUE") // Hérité ou surchargé
+  id_chapitre       Int
+  paragraphe        Paragraphe   @relation(fields: [id_chapitre], references: [id])
+  id_theme          Int?
+  theme             Theme?       @relation(fields: [id_theme], references: [id])
+  type_activite     String       // savoir, evaluation, devoir, examen
+  validation_admin  Boolean      @default(false)
+  auto_script_global Json?       // { type, mode, payload, delay_s }
+  diapos            Diapo[]
+  eleven_config     Json?        // Configuration ElevenLabs
+  createdAt         DateTime     @default(now())
+}
+
+model Diapo {
+  id                  Int      @id @default(autoincrement())
+  ordre               Int
+  id_cours            Int
+  cours               Cours    @relation(fields: [id_cours], references: [id])
+  bg_color            String?
+  bg_image            String?
+  auto_script_type    String   @default("none") // none, script_nl, script
+  auto_script_payload String?  @db.Text
+  auto_script_delay_s Int      @default(0)
+  blocs               Bloc[]
+  createdAt           DateTime @default(now())
+}
+
+model Bloc {
+  id            String   @id // Timestamp ou UUID
+  custom_id     String?  // ID DOM personnalisé
+  type          String   // texte, image, video, bouton, bouton_theme, revelation, flashcard, latex
+  cible         String   @default("canvas") // canvas ou entete
+  id_diapo      Int
+  diapo         Diapo    @relation(fields: [id_diapo], references: [id])
+  
+  // Positionnement & Dimensions
+  x             Float
+  y             Float
+  width         Float
+  height        Float
+  z_index       Int      @default(1)
+  masque_depart Boolean  @default(false)
+
+  // Contenu Bilingue
+  contenu_fr    String?  @db.Text
+  contenu_ar    String?  @db.Text
+  texte_vocal_fr String? @db.Text
+  texte_vocal_ar String? @db.Text
+
+  // Médias
+  url           String?  @db.Text
+  url_fr        String?  @db.Text
+  url_ar        String?  @db.Text
+  audio_url     String?  @db.Text
+  audio_url_fr  String?  @db.Text
+  audio_url_ar  String?  @db.Text
+
+  // Propriétés spécifiques (stockées en JSON pour la flexibilité)
+  props         Json?    
+  action        Json?    // { type, payload, payload2 }
+  design        Json?    // { n_bg, h_bg, radius, etc. }
+
+  createdAt     DateTime @default(now())
 }
 
 model Theme {
   id               Int        @id @default(autoincrement())
   nom              String
-  // État Normal
-  btnBg            String
-  btnColor         String
-  btnBorderColor   String
-  btnBorderSize    String
-  btnRadius        String
-  btnShadow        String     // Ombre sur bouton
-  textShadow       String?    // Ombre sur texte
-  // État Survol
-  btnHoverBg       String
-  btnHoverColor    String
-  btnHoverBorder   String
-  btnHoverShadow   String
-  // Dimensions & Autres
-  width            String?
-  height           String?
-  fontSize         String?
-  iconSize         String?
-  isSolid          Boolean    @default(true)
-  activites        Activite[]
+  config           Json       // Stocke toute la config design (boutonsTheme)
+  cours            Cours[]
   createdAt        DateTime   @default(now())
-}
-
-model Diapo {
-  id         Int       @id @default(autoincrement())
-  ordre      Int
-  activiteId Int
-  activite   Activite  @relation(fields: [activiteId], references: [id])
-  elements   Element[]
-  bgColor    String?
-  bgImage    String?
-  createdAt  DateTime  @default(now())
-}
-
-model Element {
-  id        Int      @id @default(autoincrement())
-  type      String   // TEXT, IMAGE, VIDEO, SOUND, LATEX
-  contenu   String   @db.Text
-  style     Json?    // Propriétés CSS (taille, couleur, position)
-  diapoId   Int
-  diapo     Diapo    @relation(fields: [diapoId], references: [id])
-  ordre     Int
-  createdAt DateTime @default(now())
 }
 
 model EvaluationScore {

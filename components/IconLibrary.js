@@ -1,35 +1,70 @@
 // components/IconLibrary.js
 "use client";
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import * as Icons from 'lucide-react';
 
 const IconLibrary = ({ onSelect, selectedIcon }) => {
-  const iconNames = Object.keys(Icons).filter(key => typeof Icons[key] === 'function');
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredIcons = iconNames.filter(name => 
-    name.toLowerCase().includes(searchTerm.toLowerCase())
-  ).slice(0, 100); // Limiter à 100 pour la performance
+  // Filtrer les icônes de manière sécurisée
+  const iconNames = useMemo(() => {
+    try {
+      return Object.keys(Icons).filter(key => {
+        // Ne garder que ce qui ressemble à un composant d'icône (PascalCase et fonction/objet)
+        return /^[A-Z]/.test(key) && (typeof Icons[key] === 'function' || typeof Icons[key] === 'object');
+      });
+    } catch (e) {
+      console.error("Erreur lors de la récupération des icônes:", e);
+      return [];
+    }
+  }, []);
+
+  const filteredIcons = useMemo(() => {
+    return iconNames
+      .filter(name => name.toLowerCase().includes(searchTerm.toLowerCase()))
+      .slice(0, 150); // Un peu plus pour la richesse
+  }, [searchTerm, iconNames]);
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #ddd', borderRadius: '8px', padding: '15px' }}>
-      <input 
-        type="text" 
-        placeholder="Rechercher une icône..." 
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ width: '100%', padding: '8px', marginBottom: '15px', borderRadius: '4px', border: '1px solid #ccc' }}
-      />
+    <div style={{ 
+      background: '#ffffff', 
+      border: '2px solid var(--accent-or)', 
+      borderRadius: '12px', 
+      padding: '20px',
+      boxShadow: 'var(--shadow-soft)',
+      marginTop: '10px'
+    }}>
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="text" 
+          placeholder="🔍 Rechercher une icône (ex: Home, User, Settings...)" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ 
+            width: '100%', 
+            padding: '12px', 
+            borderRadius: '8px', 
+            border: '1px solid #ddd',
+            outline: 'none',
+            fontSize: '14px'
+          }}
+        />
+      </div>
+      
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', 
-        gap: '10px',
-        maxHeight: '300px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(50px, 1fr))', 
+        gap: '8px',
+        maxHeight: '350px',
         overflowY: 'auto',
-        padding: '5px'
+        padding: '10px',
+        background: '#f9f9f9',
+        borderRadius: '8px'
       }}>
         {filteredIcons.map(name => {
-          const Icon = Icons[name];
+          const IconComponent = Icons[name];
+          if (!IconComponent) return null;
+
           return (
             <div 
               key={name}
@@ -39,17 +74,32 @@ const IconLibrary = ({ onSelect, selectedIcon }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '8px',
-                borderRadius: '4px',
+                padding: '10px',
+                borderRadius: '8px',
                 cursor: 'pointer',
-                background: selectedIcon === name ? 'var(--accent-or)' : 'transparent',
-                border: '1px solid #eee'
+                background: selectedIcon === name ? 'var(--accent-or)' : 'white',
+                border: '1px solid #eee',
+                transition: 'all 0.2s ease',
+                boxShadow: selectedIcon === name ? '0 2px 8px rgba(212,175,55,0.3)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (selectedIcon !== name) e.currentTarget.style.background = '#fff5e6';
+              }}
+              onMouseLeave={(e) => {
+                if (selectedIcon !== name) e.currentTarget.style.background = 'white';
               }}
             >
-              <Icon size={20} color={selectedIcon === name ? '#110f19' : '#110f19'} />
+              <IconComponent 
+                size={24} 
+                color={selectedIcon === name ? '#110f19' : '#444'} 
+                strokeWidth={1.5}
+              />
             </div>
           );
         })}
+      </div>
+      <div style={{ marginTop: '10px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
+        {filteredIcons.length} icônes affichées
       </div>
     </div>
   );

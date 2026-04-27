@@ -9,10 +9,16 @@ import { InlineMath, BlockMath } from 'react-katex';
 export default function ActiviteCreator() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slides, setSlides] = useState([
-    { id: 1, elements: [], bgColor: '#ffffff', bgImage: null }
+    { id: 1, blocs: [], bg_color: '#ffffff', bg_image: null }
   ]);
-  const [activityInfo, setActivityInfo] = useState({
-    matiere: '', niveau: '', classe: '', periode: '', chapitre: '', theme: ''
+  const [coursInfo, setCoursInfo] = useState({
+    titre_fr: '', 
+    titre_ar: '', 
+    id_chapitre: '', 
+    id_theme: '', 
+    type_activite: 'savoir',
+    langue_mode: 'BILINGUE', // BILINGUE, FR, AR
+    validation_admin: false
   });
 
   // Paramètres par défaut de la navigation (Atelier 1)
@@ -27,25 +33,81 @@ export default function ActiviteCreator() {
     btnBorderColor: '#d4af37'
   };
 
+  const generateAudio = async (blocId, lang) => {
+    const updatedSlides = [...slides];
+    const bloc = updatedSlides[currentSlide].blocs.find(b => b.id === blocId);
+    const text = lang === 'fr' ? bloc.texte_vocal_fr || bloc.contenu_fr : bloc.texte_vocal_ar || bloc.contenu_ar;
+
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        if (lang === 'fr') bloc.audio_url_fr = url;
+        else bloc.audio_url_ar = url;
+        setSlides(updatedSlides);
+        const audio = new Audio(url);
+        audio.play();
+      }
+    } catch (error) {
+      console.error('TTS Error:', error);
+    }
+  };
+
   const addSlide = () => {
-    setSlides([...slides, { id: Date.now(), elements: [], bgColor: '#ffffff', bgImage: null }]);
-    setCurrentSlide(slides.length);
+    setSlides([...slides, { id: Date.now(), blocs: [], bg_color: '#ffffff', bg_image: null }]);
+  };
+
+  const saveCours = async () => {
+    try {
+      const response = await fetch('/api/cours', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...coursInfo,
+          diapos: slides.map((s, idx) => ({
+            ordre: idx,
+            bg_color: s.bg_color,
+            bg_image: s.bg_image,
+            blocs: s.blocs
+          }))
+        })
+      });
+      const data = await response.json();
+      if (data.id) alert('Cours sauvegardé !');
+    } catch (error) {
+      alert('Erreur de sauvegarde');
+    }
   };
 
   const addElement = (type) => {
-    const newElement = {
-      id: Date.now(),
+    const newBloc = {
+      id: `bloc_${Date.now()}`,
+      custom_id: '',
       type: type,
-      contenu: type === 'LATEX' ? 'E = mc^2' : 'Nouvel élément ' + type,
-      style: {
-        fontSize: '16px',
-        color: '#110f19',
-        textAlign: 'left',
-        padding: '10px'
+      cible: 'canvas',
+      x: 50,
+      y: 50,
+      width: 200,
+      height: 100,
+      z_index: 10,
+      masque_depart: false,
+      contenu_fr: type === 'LATEX' ? 'E = mc^2' : 'Texte Français',
+      contenu_ar: type === 'LATEX' ? 'E = mc^2' : 'نص عربي',
+      props: {
+        font_size_fr: 1,
+        font_size_ar: 1,
+        couleur_fr: '#110f19',
+        couleur_ar: '#110f19'
       }
     };
     const updatedSlides = [...slides];
-    updatedSlides[currentSlide].elements.push(newElement);
+    updatedSlides[currentSlide].blocs.push(newBloc);
     setSlides(updatedSlides);
   };
 
@@ -62,10 +124,44 @@ export default function ActiviteCreator() {
         {/* BARRE LATERALE GAUCHE : INFOS & DIAPOS */}
         <div style={{ background: '#f8f9fa', padding: '15px', overflowY: 'auto' }}>
           <h3 className="section-title" style={{ fontSize: '14px' }}>Infos Activité</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-            <input type="text" placeholder="Matière" className="input-os" />
-            <input type="text" placeholder="Niveau" className="input-os" />
-            <input type="text" placeholder="Classe" className="input-os" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+            <input 
+              type="text" 
+              placeholder="Titre Français" 
+              className="btn-os" 
+              style={{ background: '#fff', color: '#110f19', textAlign: 'left', display: coursInfo.langue_mode === 'AR' ? 'none' : 'block' }}
+              value={coursInfo.titre_fr}
+              onChange={(e) => setCoursInfo({...coursInfo, titre_fr: e.target.value})}
+            />
+            <input 
+              type="text" 
+              placeholder="العنوان بالعربية" 
+              className="btn-os" 
+              style={{ background: '#fff', color: '#110f19', textAlign: 'right', direction: 'rtl', display: coursInfo.langue_mode === 'FR' ? 'none' : 'block' }}
+              value={coursInfo.titre_ar}
+              onChange={(e) => setCoursInfo({...coursInfo, titre_ar: e.target.value})}
+            />
+            <select 
+              className="btn-os" 
+              style={{ background: '#fff', color: '#110f19' }}
+              value={coursInfo.langue_mode}
+              onChange={(e) => setCoursInfo({...coursInfo, langue_mode: e.target.value})}
+            >
+              <option value="BILINGUE">Mode: Bilingue (FR/AR)</option>
+              <option value="FR">Mode: Français Uniquement</option>
+              <option value="AR">Mode: Arabe Uniquement</option>
+            </select>
+            <select 
+              className="btn-os" 
+              style={{ background: '#fff', color: '#110f19' }}
+              value={coursInfo.type_activite}
+              onChange={(e) => setCoursInfo({...coursInfo, type_activite: e.target.value})}
+            >
+              <option value="savoir">Type: Savoir</option>
+              <option value="evaluation">Type: Évaluation</option>
+              <option value="devoir">Type: Devoir</option>
+              <option value="examen">Type: Examen</option>
+            </select>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -97,24 +193,56 @@ export default function ActiviteCreator() {
 
         {/* ZONE DE TRAVAIL (BODY) */}
         <div style={{ 
-          background: slides[currentSlide].bgColor, 
-          backgroundImage: slides[currentSlide].bgImage ? `url(${slides[currentSlide].bgImage})` : 'none',
+          background: slides[currentSlide].bg_color, 
+          backgroundImage: slides[currentSlide].bg_image ? `url(${slides[currentSlide].bg_image})` : 'none',
           backgroundSize: 'cover',
           position: 'relative',
-          padding: '40px',
+          padding: '0', // Supprimer padding pour positionnement absolu
           overflow: 'hidden'
         }}>
           <div style={{ 
             width: '100%', 
             height: '100%', 
-            border: '1px dashed #ccc',
             position: 'relative'
           }}>
-            {slides[currentSlide].elements.map(el => (
-              <div key={el.id} style={{ ...el.style, border: '1px solid transparent', cursor: 'move' }}>
-                {el.type === 'TEXT' && <p>{el.contenu}</p>}
-                {el.type === 'LATEX' && <BlockMath math={el.contenu} />}
-                {el.type === 'IMAGE' && <div style={{ background: '#eee', padding: '20px' }}>🖼️ Image Placeholder</div>}
+            {slides[currentSlide].blocs.map(el => (
+              <div 
+                key={el.id} 
+                style={{ 
+                  position: 'absolute',
+                  left: `${el.x}px`,
+                  top: `${el.y}px`,
+                  width: `${el.width}px`,
+                  height: `${el.height}px`,
+                  zIndex: el.z_index,
+                  border: '1px dotted #888',
+                  cursor: 'move',
+                  direction: 'ltr', // Par défaut
+                  padding: '5px'
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <div style={{ fontSize: '10px', color: '#888', marginBottom: '2px' }}>{el.type.toUpperCase()}</div>
+                  {el.type === 'TEXT' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        {(coursInfo.langue_mode === 'BILINGUE' || coursInfo.langue_mode === 'FR') && (
+                          <div style={{ flex: 1, borderRight: coursInfo.langue_mode === 'BILINGUE' ? '1px solid #eee' : 'none' }}>
+                            {el.contenu_fr}
+                            <button onClick={() => generateAudio(el.id, 'fr')} style={{ fontSize: '10px', marginLeft: '5px' }}>🔊</button>
+                          </div>
+                        )}
+                        {(coursInfo.langue_mode === 'BILINGUE' || coursInfo.langue_mode === 'AR') && (
+                          <div style={{ flex: 1, textAlign: 'right', direction: 'rtl' }}>
+                            {el.contenu_ar}
+                            <button onClick={() => generateAudio(el.id, 'ar')} style={{ fontSize: '10px', marginRight: '5px' }}>🔊</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {el.type === 'LATEX' && <BlockMath math={el.contenu_fr} />}
+                </div>
               </div>
             ))}
           </div>
