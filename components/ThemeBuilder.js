@@ -1,6 +1,7 @@
 // components/ThemeBuilder.js
 "use client";
 import React from 'react';
+import * as Icons from 'lucide-react';
 import { X, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 
 export const DynamicModal = ({ settings, isOpen, onClose, children }) => {
@@ -59,6 +60,15 @@ export const DynamicNav = ({ settings, onNavigate }) => {
 
   const renderIcon = (type) => {
     const size = parseInt(settings.btnIconSize) || 20;
+    
+    // Vérifier si une icône personnalisée est définie dans les settings
+    const customIconName = settings[`icon_${type}`];
+    if (customIconName && Icons[customIconName]) {
+      const CustomIcon = Icons[customIconName];
+      return <CustomIcon size={size} />;
+    }
+
+    // Fallback sur les icônes par défaut
     switch(type) {
       case 'home': return <Home size={size} />;
       case 'prev': return <ChevronLeft size={size} />;

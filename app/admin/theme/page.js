@@ -43,6 +43,23 @@ export default function ThemeAdmin() {
 
   const [showPreview, setShowPreview] = useState(false);
   const [showIconLib, setShowIconLib] = useState(false);
+  const [activeIconType, setActiveIconType] = useState(null); // 'home', 'prev', 'next', 'close'
+
+  const selectIcon = (name) => {
+    if (activeIconType) {
+      setNavSettings({
+        ...navSettings,
+        [`icon_${activeIconType}`]: name
+      });
+      setShowIconLib(false);
+      setActiveIconType(null);
+    }
+  };
+
+  const openIconLib = (type) => {
+    setActiveIconType(type);
+    setShowIconLib(true);
+  };
 
   const saveTheme = async () => {
     try {
@@ -105,10 +122,30 @@ export default function ThemeAdmin() {
             <label>Ombre Survol: <input type="text" value={navSettings.btnHoverShadow} onChange={e => setNavSettings({...navSettings, btnHoverShadow: e.target.value})} /></label>
 
             <h4 style={{ borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>Icônes</h4>
-            <button className="btn-os-outline" onClick={() => setShowIconLib(!showIconLib)}>
-              {showIconLib ? "Fermer la bibliothèque" : "Ouvrir la bibliothèque d'icônes"}
-            </button>
-            {showIconLib && <IconLibrary onSelect={(name) => alert('Icône sélectionnée: ' + name)} />}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <button className="btn-os-outline" style={{ fontSize: '12px' }} onClick={() => openIconLib('home')}>
+                🏠 {navSettings.icon_home || 'Home'}
+              </button>
+              <button className="btn-os-outline" style={{ fontSize: '12px' }} onClick={() => openIconLib('prev')}>
+                ⬅️ {navSettings.icon_prev || 'Précédent'}
+              </button>
+              <button className="btn-os-outline" style={{ fontSize: '12px' }} onClick={() => openIconLib('next')}>
+                ➡️ {navSettings.icon_next || 'Suivant'}
+              </button>
+              <button className="btn-os-outline" style={{ fontSize: '12px' }} onClick={() => openIconLib('close')}>
+                ✖️ {navSettings.icon_close || 'Fermer'}
+              </button>
+            </div>
+            
+            {showIconLib && (
+              <div style={{ position: 'relative', zIndex: 100 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                  <span style={{ fontWeight: 'bold' }}>Choisir l'icône pour: {activeIconType}</span>
+                  <button onClick={() => setShowIconLib(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>❌</button>
+                </div>
+                <IconLibrary onSelect={selectIcon} selectedIcon={navSettings[`icon_${activeIconType}`]} />
+              </div>
+            )}
 
             <button className="btn-os" onClick={saveTheme} style={{ marginTop: '20px' }}>💾 Enregistrer le Thème (ID)</button>
           </div>

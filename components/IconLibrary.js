@@ -9,21 +9,41 @@ const IconLibrary = ({ onSelect, selectedIcon }) => {
   // Filtrer les icônes de manière sécurisée
   const iconNames = useMemo(() => {
     try {
-      return Object.keys(Icons).filter(key => {
-        // Ne garder que ce qui ressemble à un composant d'icône (PascalCase et fonction/objet)
-        return /^[A-Z]/.test(key) && (typeof Icons[key] === 'function' || typeof Icons[key] === 'object');
+      const keys = Object.keys(Icons);
+      console.log(`Nombre total d'exports Lucide trouvés: ${keys.length}`);
+      
+      const filtered = keys.filter(key => {
+        // Ne garder que ce qui ressemble à un composant d'icône (PascalCase)
+        // On exclut les fonctions internes comme 'createLucideIcon'
+        return /^[A-Z]/.test(key) && 
+               key !== 'createLucideIcon' && 
+               (typeof Icons[key] === 'function' || typeof Icons[key] === 'object');
       });
+      
+      console.log(`Nombre d'icônes filtrées: ${filtered.length}`);
+      return filtered;
     } catch (e) {
-      console.error("Erreur lors de la récupération des icônes:", e);
+      console.error("Erreur critique lors de la récupération des icônes:", e);
       return [];
     }
   }, []);
 
   const filteredIcons = useMemo(() => {
+    if (iconNames.length === 0) return [];
+    
+    const search = searchTerm.toLowerCase();
     return iconNames
-      .filter(name => name.toLowerCase().includes(searchTerm.toLowerCase()))
-      .slice(0, 150); // Un peu plus pour la richesse
+      .filter(name => name.toLowerCase().includes(search))
+      .slice(0, 200); // Augmenté à 200
   }, [searchTerm, iconNames]);
+
+  if (iconNames.length === 0) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center', color: '#ff4444', border: '1px solid #ff4444', borderRadius: '8px' }}>
+        ⚠️ Aucune icône chargée. Vérifiez l'installation de lucide-react.
+      </div>
+    );
+  }
 
   return (
     <div style={{ 
